@@ -6,32 +6,34 @@
 <body>
 
   <script>
-    var div = document.createElement('div');
-    document.body.appendChild(div);
+    //printing out all the locations.
+    //ways to improve this? 
+
+    var append1 = ["A", "B", "C", "D"],
+        append2 = [1, 2, 3, 4];
+        counterAppend1 = 0;
+        counterAppend2 = 0;
+
+    var addTiles = function() {
+      for (var i = 1; i <= 16; i ++) {
+        var k = "",
+
+        k = k + append1[counterAppend1] + append2[counterAppend2];
+
+        var tile = document.createElement('div');
+        console.log(k);
+        document.body.appendChild(tile).setAttribute('class', k);
+
+        counterAppend2 ++;
+
+        if (i%4 == 0) {
+        counterAppend1 ++;
+        counterAppend2 = 0; //reset
+        }
+      }
+    }
+
+    addTiles();
   </script>
 </body>
 </html>
-
-//writing code that prints out A1, A2 ... 
-//to append to div as classes
-//IN PROGRESS. 
-
-var append1 = ["A", "B", "C", "D"],
-    append2 = [1, 2, 3, 4];
-    counterAppend1 = 0;
-    counterAppend2 = 0;
-
-for (var i = 0; i <= 15; i ++) {
-  var k = "",
-
-  //normal loop
-  k = k + append1[counterAppend1] + append2[counterAppend2];
-  console.log(k);
-  counterAppend2 ++;
-
-  //on multiples of 4
-  if (i%4 == 0) {
-  counterAppend1 ++;
-  counterAppend2 = 0; //reset
-  }
-}
