@@ -1,37 +1,44 @@
-<html>
+<!DOCTYPE html>
+<html lang="en" ng-app="puzzle">
 <head>
-  <title>2048 Game!</title>
-  <link rel="stylesheet" type="text/css" href="style.css">
+  <meta charset="utf-8">
+  <title>2048 puzzle</title>
+  <link rel="stylesheet" type="text/css" href="styles/app.css" />
 </head>
 <body>
 
-  <script>
-    var div = document.createElement('div');
-    document.body.appendChild(div);
-  </script>
+<div ng-controller="puzzleController">
+  <div id="container">
+    <div class="block val val-{{block.val}}"
+          ng-repeat="(key, block) in grid"
+          style="left: {{block.col * blockWidth}}%;
+                  top: {{block.row * blockHeight}}%;
+                  width: {{blockWidth}}%;
+                  height: {{blockHeight}}%">
+
+      <div class="block-val">
+        <label>row</label><input ng-model="block.row" /><br/>
+        <label>col</label><input ng-model="block.col" /><br/>
+        <label>val</label><input ng-model="block.val" />
+      </div>
+    </div>
+  </div>
+
+  <button ng-click="left()">Left</button>
+  <button ng-click="right()">Right</button>
+  <button ng-click="up()">Up</button>
+  <button ng-click="down()">Down</button>
+
+  <br/>
+
+  {{operand}}
+</div>
+
+<!-- Depencencies -->
+<script type="text/javascript" src="scripts/vendor/jquery.min.js"></script>
+<script type="text/javascript" src="scripts/vendor/angular.min.js"></script>
+
+<!-- Main app -->
+<script type="text/javascript" src="scripts/controllers.js"></script>
 </body>
 </html>
-
-//writing code that prints out A1, A2 ... 
-//to append to div as classes
-//IN PROGRESS. 
-
-var append1 = ["A", "B", "C", "D"],
-    append2 = [1, 2, 3, 4];
-    counterAppend1 = 0;
-    counterAppend2 = 0;
-
-for (var i = 0; i <= 15; i ++) {
-  var k = "",
-
-  //normal loop
-  k = k + append1[counterAppend1] + append2[counterAppend2];
-  console.log(k);
-  counterAppend2 ++;
-
-  //on multiples of 4
-  if (i%4 == 0) {
-  counterAppend1 ++;
-  counterAppend2 = 0; //reset
-  }
-}
