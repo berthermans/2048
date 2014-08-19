@@ -27,7 +27,7 @@ app.controller('puzzleController', function ($scope) {
 			var block = {
 
 				// create random value for top 4 blocks
-				val: (row < 4 && col < 4) ? rand(2) : 0,
+				val: (row < rand(4) && col < rand(4)) ? randPow(2) : 0,
 				row: row,
 				col: col
 			};
@@ -35,6 +35,18 @@ app.controller('puzzleController', function ($scope) {
 			$scope.grid[row + ":" + col] = block;
 		}
 	}
+
+	//
+	// Move
+	// 
+	// Iterate through all blocks and create comparisons
+	// 
+	// Usage: ... (todo)
+	// 
+	// @TODO
+	// - Lot of redundant code, need to minimize
+	// - Down and Right need reverse looping
+	// 
 
 	$scope.move = function(dir){
 		$scope.operand = dir;
@@ -49,20 +61,61 @@ app.controller('puzzleController', function ($scope) {
 
 					// Only loop through 2nd row and higher
 					if(dir == "up" && block.row > 0){
-						var compareBlock = $scope.grid[(block.row - 1) + ":" + block.col];
-						
-						compare(block, compareBlock);
+
+						var compareRow = block.row - 1,
+							iterate = true;
+
+						// Check for a compareBlock if the value is higher than 0
+						do{
+							var compareBlock = $scope.grid[compareRow + ":" + block.col];
+							var status = compare(block, compareBlock);
+
+							if(status == "multiply" || status == "stuck" || compareRow == 0){
+								iterate = false;
+							} else {
+								block = status;
+								compareRow--;
+							}
+
+						} while(iterate);
 					}
 					// Only loop through 2nd column and higher
 					else if(dir == "left" && block.col > 0){
-						var compareBlock = $scope.grid[block.row + ":" + (block.col - 1)];
-						
-						compare(block, compareBlock);
+
+						var compareCol = block.col -1,
+							iterate = true;
+
+						// Check for a compareBlock if the value is higher than 0
+						do{
+							var compareBlock = $scope.grid[block.row + ":" + compareCol];
+							var status = compare(block, compareBlock);
+
+							if(status == "multiply" || status == "stuck" || compareCol == 0){
+								iterate = false;
+							} else {
+								block = status;
+								compareCol--;
+							}
+
+						} while(iterate);
+
 					}
 				}
 			});
 		}
 	}
+
+	// 
+	// Compare
+	// 
+	// Compare blocks and perform operation when needed
+	// 
+	// Usage: ... (todo)
+	// 
+	// @TODO
+	// Compare should do only that, not perform operations
+	// Have Move() perform the actual operation, compare only returns status
+	// 
 
 	function compare(block, compareBlock){
 
@@ -74,9 +127,12 @@ app.controller('puzzleController', function ($scope) {
 
 			// Multiply prevBlock value by 2
 			compareBlock.val *= 2;
+
+			// Return end status
+			return "multiply";
 		}
 
-		// In case compareBlock is empty
+		// In case compareBlock is empty, shift
 		else if(compareBlock.val == 0){
 
 			// Update empty block with current block value
@@ -84,11 +140,22 @@ app.controller('puzzleController', function ($scope) {
 
 			// Clear current block
 			block.val = 0;
+
+			// Return shifted block for another iteration
+			return compareBlock;
 		}
+
+		// Return end status
+		else return "stuck";
 	}
 });
 
+// Create rounded random number between 0 and limit
+function rand(limit){
+	return Math.round(Math.random() * limit);
+}
+
 // Create random number between 2 and 2^(pow)
-function rand(pow){
+function randPow(pow){
 	return Math.pow(2, 1 + Math.floor(Math.random() * pow));
 }
