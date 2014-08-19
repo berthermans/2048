@@ -10,7 +10,7 @@ body *{
 .val{		background:#000;}
 
 /*all other values*/
-.val-0{		background:#ccc;}
+.val-0{		display: none}
 .val-2{		background:#FFE7C6;}
 .val-4{		background:#FFB573;}
 .val-8{		background:#FF8429;}
@@ -52,19 +52,8 @@ body *{
 	display: inline-block;
 	text-align: center;
 	vertical-align: middle;
-	font-size: 16px;
+	font-size: 42px;
+	font-weight: bold;
+	color:rgba(0,0,0,.4);
 	width: 100%;
-}
-
-
-.block .block-val label,
-.block .block-val input{
-	display:inline-block;
-	width:25%;
-	padding:2px 5px;
-	margin:2px;
-}
-
-.block .block-val input{
-	width:35%;
 }
