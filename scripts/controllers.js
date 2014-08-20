@@ -8,15 +8,17 @@ var app = angular.module('puzzle', []);
 
 app.controller('puzzleController', function ($scope) {
 
+	//HIGH SCORE
+	//GAME OVER
+	var scoreKeeper = 0;
+	$scope.gameOver = false;
+	$scope.gameStatus = "Current Score";
+	$scope.keepScore = scoreKeeper;
+	
 	var settings = {
 		gridWidth: 4,
 		gridHeight: 4
 	};
-	var scoreKeeper = 0;
-
-	$scope.gameOver = false;
-	$scope.gameStatus = "Current Score";
-	$scope.keepScore = scoreKeeper;
 
 	angular.extend(settings, {
 		blockWidth: 100 / settings.gridWidth,
