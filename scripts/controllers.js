@@ -33,7 +33,7 @@ app.controller('puzzleController', function ($scope) {
 		var block = {
 			// create random value
 			// val: (i == 0 || i == 8 || i == 12) ? randPow(2) : 0,
-			val: randPow(2),
+			val: 0, //randPow(2),
 			row: row,
 			col: col,
 			index: i
@@ -43,6 +43,8 @@ app.controller('puzzleController', function ($scope) {
 		$scope.blocks.push(block);
 	}
 
+	generateBlocks(3);
+
 	//
 	// Move
 	// 
@@ -50,14 +52,10 @@ app.controller('puzzleController', function ($scope) {
 	// 
 	// Usage: ... (todo)
 	// 
-	// @TODO
-	// - Lot of redundant code, need to minimize
-	// - Down and Right need reverse looping
-	// 
 
 	$scope.move = function(dir){
 		$scope.operand = dir;
-
+		console.log("dir", dir);
 		var jump = {
 			left : -1,
 			right : 1,
@@ -86,64 +84,85 @@ app.controller('puzzleController', function ($scope) {
 				}
 				break;
 			case "down" :
-				for(var i = settings.blockCount - settings.gridWidth; i >= 0; i--){
+				for(var i = settings.blockCount - settings.gridWidth - 1; i >= 0; i--){
 					operateBlock(dir, i, jump[dir]);
 				}
 				break;
 		}
 
+		resetBlocks();
+		generateBlocks(1);
+	}
+
+	// Random generation of block
+	function generateBlocks(amount){
+		var placed = 0,
+			currentBlock;
+
+
+		do{
+			currentBlock = $scope.blocks[rand(settings.blockCount - 1)];
+			
+			if(currentBlock.val == 0){
+				currentBlock.val = randPow(2);
+				placed++;
+			}
+		} while(placed < amount);
+	}
+
+	function resetBlocks(){
+
 		// once all operations have been performed, reset block done status
 		angular.forEach($scope.blocks, function(block, index){
 			block.done = false;
 		});
+	}
 
-		function operateBlock(dir, currentIndex, jump){
+	function operateBlock(dir, currentIndex, jump){
 
-			// Only perform check if value > 0
-			if($scope.blocks[currentIndex].val > 0){
+		// Only perform check if value > 0
+		if($scope.blocks[currentIndex].val > 0){
 
-				do{
-					var currentBlock = $scope.blocks[currentIndex],
-						compareBlock = $scope.blocks[currentIndex + jump],
-						status = compare(currentBlock, compareBlock);
+			do{
+				var currentBlock = $scope.blocks[currentIndex],
+					compareBlock = $scope.blocks[currentIndex + jump],
+					status = compare(currentBlock, compareBlock);
 
-						console.log(currentIndex + " -> " + (currentIndex + jump), ":", currentBlock.val, compareBlock.val, status);
+					console.log(currentIndex + " -> " + (currentIndex + jump), ":", currentBlock.val, compareBlock.val, status);
 
-						// perform operation when status is returned
-						switch(status){
-							case "multiply" :
+					// perform operation when status is returned
+					switch(status){
+						case "multiply" :
 
-								// Make sure multiply is only performed once per move
-								if(compareBlock.done) return;
-								compareBlock.done = true;
-								compareBlock.val *= 2;
-								currentBlock.val = 0;
-								break;
-							case "shift" :
-								compareBlock.val = currentBlock.val;
-								currentBlock.val = 0;
-								break;
-						}
+							// Make sure multiply is only performed once per move
+							if(compareBlock.done) return;
+							compareBlock.done = true;
+							compareBlock.val *= 2;
+							currentBlock.val = 0;
+							break;
+						case "shift" :
+							compareBlock.val = currentBlock.val;
+							currentBlock.val = 0;
+							break;
+					}
 
 
-						// if border has been reached, set status to stuck
-						if(
-							(dir == "left" && compareBlock.col-1 < 0) ||
-							(dir == "right" && compareBlock.col+1 >= settings.gridWidth) ||
-							(dir == "up" && compareBlock.row-1 < 0) ||
-							(dir == "down" && compareBlock.row+1 >= settings.gridHeight)){
+					// if border has been reached, set status to stuck
+					if(
+						(dir == "left" && compareBlock.col-1 < 0) ||
+						(dir == "right" && compareBlock.col+1 >= settings.gridWidth) ||
+						(dir == "up" && compareBlock.row-1 < 0) ||
+						(dir == "down" && compareBlock.row+1 >= settings.gridHeight)){
 
-							console.log("out of bounds, stop");
-							status = "stuck";
-						}
+						console.log("out of bounds, stop");
+						status = "stuck";
+					}
 
-						// update the pointer to the recently compared block
-						currentIndex+=jump;
+					// update the pointer to the recently compared block
+					currentIndex+=jump;
 
-				} while(status == "shift"); // Keep on comparing blocks as long as it can shift
-			}
+			} while(status == "shift"); // Keep on comparing blocks as long as it can shift
 		}
-
 	}
 
 	// 
@@ -174,6 +193,23 @@ app.controller('puzzleController', function ($scope) {
 		// Return end status
 		return "stuck";
 	}
+
+	// Bind keypress to move function
+	angular.element(document).on("keydown", function(e){
+		
+		var keyMapping = {
+			"37" : "left",
+			"38" : "up",
+			"39" : "right",
+			"40" : "down"
+		}
+
+		if(!keyMapping[e.keyCode]) return;
+
+		$scope.move(keyMapping[e.keyCode]);
+		$scope.$apply();
+
+	});
 });
 
 // Create rounded random number between 0 and limit

@@ -6,21 +6,22 @@ body *{
 	box-sizing: border-box;
 }
 
-/*value above 2048*/
-.val{		background:#fff;}
+.block.val-0{
+	background:transparent;
+}
 
 /*all other values*/
-.val-2{		background:#FFE7C6;}
-.val-4{		background:#FFB573;}
-.val-8{		background:#FF8429;}
-.val-16{	background:#AD4A18;}
-.val-32{	background:#FF6342;}
-.val-64{	background:#D60000;}
-.val-128{	background:#94D639;}
-.val-256{	background:#218429;}
-.val-512{	background:#639C18;}
-.val-1024{	background:#425A10; color: white;}
-.val-2048{	background:#082984; color: white;}
+.block.val-2{		background:#FFE7C6;}
+.block.val-4{		background:#FFD39B;}
+.block.val-8{		background:#FFA54F;}
+.block.val-16{		background:#FF8C00; color: white;}
+.block.val-32{		background:#CD2626; color: white;}
+.block.val-64{		background:#FF4040; color: white;}
+.block.val-128{		background:#D60000; color: white;}
+.block.val-256{		background:#218429; color: white;}
+.block.val-512{		background:#639C18; color: white;}
+.block.val-1024{	background:#425A10; color: white;}
+.block.val-2048{	background:#082984; color: white;}
 
 #container{
 	background:#eee;
@@ -36,11 +37,8 @@ body *{
 	border:solid 1px #eee;
 	text-align: center;
 	position: relative;
-}
-
-.block.val-0{
-	/*visibility: hidden;*/
-	/*opacity: .5;*/
+	color:rgba(0,0,0,.4);
+	transition: background ease-out .2s;
 }
 
 /*vertical center hack, pretty neat right?*/
@@ -58,9 +56,15 @@ body *{
 	vertical-align: middle;
 	font-size: 42px;
 	font-weight: bold;
-	color:rgba(0,0,0,.4);
 	width: 100%;
+	transition: font-size ease-in .2s;
 }
+
+.block.val-0 .block-val{
+	color:transparent;
+	font-size:0;
+}
+
 
 .block .block-index{
 	position:absolute;
