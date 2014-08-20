@@ -19,10 +19,12 @@
     </div>
   </div>
 
-  <button ng-click="move('left')">Left</button>
-  <button ng-click="move('up')">Up</button>
-  <button ng-click="move('right')">Right</button>
-  <button ng-click="move('down')">Down</button>
+  <button ng-click="move('left')" ng-disabled="{{gameOver}}">Left</button>
+  <button ng-click="move('up')" ng-disabled="{{gameOver}}">Up</button>
+  <button ng-click="move('right')" ng-disabled="{{gameOver}}">Right</button>
+  <button ng-click="move('down')" ng-disabled="{{gameOver}}">Down</button>
+
+  <h4>{{gameStatus}}: {{keepScore}}</h4>
 
   <br/>
 

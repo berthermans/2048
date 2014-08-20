@@ -1,11 +1,22 @@
 var app = angular.module('puzzle', []);
 
+
+//HEIDI TODO
+//1 - SLIDE ANIMATION
+//2 - KEEPING SCORE
+//3 - GAME OVER
+
 app.controller('puzzleController', function ($scope) {
 
 	var settings = {
 		gridWidth: 4,
 		gridHeight: 4
-	}
+	};
+	var scoreKeeper = 0;
+
+	$scope.gameOver = false;
+	$scope.gameStatus = "Current Score";
+	$scope.keepScore = scoreKeeper;
 
 	angular.extend(settings, {
 		blockWidth: 100 / settings.gridWidth,
@@ -43,6 +54,7 @@ app.controller('puzzleController', function ($scope) {
 		$scope.blocks.push(block);
 	}
 
+	//ON INITIATION, GENERATE 3 BLOCKS
 	generateBlocks(3);
 
 	//
@@ -108,6 +120,12 @@ app.controller('puzzleController', function ($scope) {
 				placed++;
 			}
 		} while(placed < amount);
+
+		if (placed == settings.blockCount) {
+
+			$scope.gameOver = true;
+			$scope.gameStatus = "Game Over! Final Score"; 
+		}
 	}
 
 	function resetBlocks(){
@@ -138,8 +156,15 @@ app.controller('puzzleController', function ($scope) {
 							if(compareBlock.done) return;
 							compareBlock.done = true;
 							compareBlock.val *= 2;
-							currentBlock.val = 0;
+							currentBlock.val = 0
+
+							//updates the highest score
+							if (compareBlock.val > scoreKeeper) {
+								scoreKeeper = compareBlock.val;
+							}
+
 							break;
+
 						case "shift" :
 							compareBlock.val = currentBlock.val;
 							currentBlock.val = 0;
