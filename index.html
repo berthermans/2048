@@ -16,10 +16,11 @@
                   width: {{blockWidth}}%;
                   height: {{blockHeight}}%">
 
-      <div class="block-val">
+      <div class="block-val" ng-class="{block-uninit: !block.val}">
         <label>row</label><input ng-model="block.row" /><br/>
         <label>col</label><input ng-model="block.col" /><br/>
         <label>val</label><input ng-model="block.val" />
+        <p>{{block.val}}</p>
       </div>
     </div>
   </div>

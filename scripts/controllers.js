@@ -26,7 +26,7 @@ app.controller('puzzleController', function ($scope) {
 			var block = {
 
 				// create random value for top 4 blocks
-				val: (row < 2 && col < 2) ? rand(2) : 0,
+				val: (row < 3 && col < 3) ? rand(2) : 0,
 				row: row,
 				col: col
 			};

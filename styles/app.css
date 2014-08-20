@@ -68,3 +68,7 @@ body *{
 .block .block-val input{
 	width:35%;
 }
+
+.block-uninit {
+	display: none !important;
+}
