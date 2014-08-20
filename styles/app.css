@@ -7,10 +7,9 @@ body *{
 }
 
 /*value above 2048*/
-.val{		background:#000;}
+.val{		background:#fff;}
 
 /*all other values*/
-.val-0{		display: none}
 .val-2{		background:#FFE7C6;}
 .val-4{		background:#FFB573;}
 .val-8{		background:#FF8429;}
@@ -29,14 +28,19 @@ body *{
 	height:500px;
 	padding:10px;
 	position: relative;
+	font-size: 0;
 }
 
 .block {
-	position: absolute;
+	display: inline-block;
 	border:solid 1px #eee;
-	font-size: 0;
 	text-align: center;
-	transition: left ease-out .2s, top ease-out .2s;
+	position: relative;
+}
+
+.block.val-0{
+	/*visibility: hidden;*/
+	/*opacity: .5;*/
 }
 
 /*vertical center hack, pretty neat right?*/
@@ -56,4 +60,12 @@ body *{
 	font-weight: bold;
 	color:rgba(0,0,0,.4);
 	width: 100%;
+}
+
+.block .block-index{
+	position:absolute;
+	top:0;
+	right:0;
+	font-size:14px;
+	margin:10px;
 }

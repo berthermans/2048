@@ -3,37 +3,44 @@ var app = angular.module('puzzle', []);
 app.controller('puzzleController', function ($scope) {
 
 	var settings = {
-		gridSize: 4
+		gridWidth: 4,
+		gridHeight: 4
 	}
 
-	settings.blockWidth = 100 / settings.gridSize;
-	settings.blockHeight = 100 / settings.gridSize;
-	settings.blockCount = Math.pow(settings.gridSize, 2);
+	angular.extend(settings, {
+		blockWidth: 100 / settings.gridWidth,
+		blockHeight: 100 / settings.gridHeight,
+		blockCount: settings.gridWidth * settings.gridHeight
+	});
 
 	// make settings public to the scope
 	angular.extend($scope, settings);
 
-	// create empty grid object
-	$scope.grid = {};
+	// create empty blocks array
+	$scope.blocks = [];
 
 	// initial operand
 	$scope.operand = "awaiting input...";
 
-	// create row loop
-	for(var row = 0; row < settings.gridSize; row++){
+	var row = 0,
+		col = 0;
 
-		// create column loop
-		for(var col = 0; col < settings.gridSize; col++){
-			var block = {
+	for(var i = 0; i < settings.blockCount; i++){
 
-				// create random value for top 4 blocks
-				val: (row < rand(4) && col < rand(4)) ? randPow(2) : 0,
-				row: row,
-				col: col
-			};
+		if(i > 0 && i%settings.gridWidth == 0) row++;
+		col = i%settings.gridWidth;
 
-			$scope.grid[row + ":" + col] = block;
-		}
+		var block = {
+			// create random value
+			// val: (i == 0 || i == 8 || i == 12) ? randPow(2) : 0,
+			val: randPow(2),
+			row: row,
+			col: col,
+			index: i
+		};
+
+		// push block element to the blocks array
+		$scope.blocks.push(block);
 	}
 
 	//
@@ -51,82 +58,107 @@ app.controller('puzzleController', function ($scope) {
 	$scope.move = function(dir){
 		$scope.operand = dir;
 
-		// default loop
-		if(dir == "up" || dir == "left"){
-
-			angular.forEach($scope.grid, function(block, key){
-
-				// Only process blocks with value
-				if(block.val){
-
-					// Only loop through 2nd row and higher
-					if(dir == "up" && block.row > 0){
-
-						var compareRow = block.row - 1,
-							iterate = true;
-
-						// Check for a compareBlock if the value is higher than 0
-						do{
-							var compareBlock = $scope.grid[compareRow + ":" + block.col];
-							var status = compare(block, compareBlock);
-
-							if(status == "multiply" || status == "stuck" || compareRow == 0){
-								iterate = false;
-							} else {
-								block = status;
-								compareRow--;
-							}
-
-						} while(iterate);
-					}
-					// Only loop through 2nd column and higher
-					else if(dir == "left" && block.col > 0){
-
-						var compareCol = block.col -1,
-							iterate = true;
-
-						// Check for a compareBlock if the value is higher than 0
-						do{
-							var compareBlock = $scope.grid[block.row + ":" + compareCol];
-							var status = compare(block, compareBlock);
-
-							if(status == "multiply" || status == "stuck" || compareCol == 0){
-								iterate = false;
-							} else {
-								block = status;
-								compareCol--;
-							}
-
-						} while(iterate);
-
-					}
-				}
-			});
+		var jump = {
+			left : -1,
+			right : 1,
+			up : -settings.gridWidth,
+			down : settings.gridWidth
 		}
+
+		switch(dir){
+			case "left" : 
+				for(var i = 1; i < settings.blockCount; i++){
+
+					// Skip most left column
+					if(i%settings.gridWidth) operateBlock(dir, i, jump[dir]);
+				}
+				break;
+			case "up" :
+				for(var i = settings.gridWidth; i < settings.blockCount; i++){
+					operateBlock(dir, i, jump[dir]);
+				}
+				break;
+			case "right" : 
+				for(var i = settings.blockCount - 1; i >= 0; i--){
+
+					// Skip most right column
+					if((i+1)%settings.gridWidth) operateBlock(dir, i, jump[dir]);
+				}
+				break;
+			case "down" :
+				for(var i = settings.blockCount - settings.gridWidth; i >= 0; i--){
+					operateBlock(dir, i, jump[dir]);
+				}
+				break;
+		}
+
+		// once all operations have been performed, reset block done status
+		angular.forEach($scope.blocks, function(block, index){
+			block.done = false;
+		});
+
+		function operateBlock(dir, currentIndex, jump){
+
+			// Only perform check if value > 0
+			if($scope.blocks[currentIndex].val > 0){
+
+				do{
+					var currentBlock = $scope.blocks[currentIndex],
+						compareBlock = $scope.blocks[currentIndex + jump],
+						status = compare(currentBlock, compareBlock);
+
+						console.log(currentIndex + " -> " + (currentIndex + jump), ":", currentBlock.val, compareBlock.val, status);
+
+						// perform operation when status is returned
+						switch(status){
+							case "multiply" :
+
+								// Make sure multiply is only performed once per move
+								if(compareBlock.done) return;
+								compareBlock.done = true;
+								compareBlock.val *= 2;
+								currentBlock.val = 0;
+								break;
+							case "shift" :
+								compareBlock.val = currentBlock.val;
+								currentBlock.val = 0;
+								break;
+						}
+
+
+						// if border has been reached, set status to stuck
+						if(
+							(dir == "left" && compareBlock.col-1 < 0) ||
+							(dir == "right" && compareBlock.col+1 >= settings.gridWidth) ||
+							(dir == "up" && compareBlock.row-1 < 0) ||
+							(dir == "down" && compareBlock.row+1 >= settings.gridHeight)){
+
+							console.log("out of bounds, stop");
+							status = "stuck";
+						}
+
+						// update the pointer to the recently compared block
+						currentIndex+=jump;
+
+				} while(status == "shift"); // Keep on comparing blocks as long as it can shift
+			}
+		}
+
 	}
 
 	// 
 	// Compare
 	// 
-	// Compare blocks and perform operation when needed
+	// Compare blocks and return status
 	// 
 	// Usage: ... (todo)
 	// 
-	// @TODO
-	// Compare should do only that, not perform operations
-	// Have Move() perform the actual operation, compare only returns status
 	// 
 
 	function compare(block, compareBlock){
 
 		// Check if current block value is equal to prevBlock value
 		if(block.val == compareBlock.val){
-
-			// Clear current block
-			block.val = 0;
-
-			// Multiply prevBlock value by 2
-			compareBlock.val *= 2;
 
 			// Return end status
 			return "multiply";
@@ -135,18 +167,12 @@ app.controller('puzzleController', function ($scope) {
 		// In case compareBlock is empty, shift
 		else if(compareBlock.val == 0){
 
-			// Update empty block with current block value
-			compareBlock.val = block.val;
-
-			// Clear current block
-			block.val = 0;
-
 			// Return shifted block for another iteration
-			return compareBlock;
+			return "shift";
 		}
 
 		// Return end status
-		else return "stuck";
+		return "stuck";
 	}
 });
 

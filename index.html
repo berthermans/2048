@@ -10,20 +10,19 @@
 <div ng-controller="puzzleController">
   <div id="container">
     <div class="block val val-{{block.val}}"
-          ng-repeat="(key, block) in grid"
-          style="left: {{block.col * blockWidth}}%;
-                  top: {{block.row * blockHeight}}%;
-                  width: {{blockWidth}}%;
-                  height: {{blockHeight}}%">
+          ng-repeat="block in blocks"
+          style="width: {{blockWidth}}%;
+                 height: {{blockHeight}}%">
 
+      <div class="block-index">{{block.index}}</div>
       <div class="block-val">{{block.val}}</div>
     </div>
   </div>
 
   <button ng-click="move('left')">Left</button>
   <button ng-click="move('up')">Up</button>
-  <button ng-click="move('right')" disabled="disabled">Right</button>
-  <button ng-click="move('down')" disabled="disabled">Down</button>
+  <button ng-click="move('right')">Right</button>
+  <button ng-click="move('down')">Down</button>
 
   <br/>
 
