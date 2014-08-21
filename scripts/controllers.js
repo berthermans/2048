@@ -10,11 +10,6 @@ app.controller('puzzleController', function ($scope) {
 
 	//HIGH SCORE
 	//GAME OVER
-
-	$scope.gameOver = false;
-	$scope.gameStatus = "Current Score";
-	$scope.keepScore = 0;
-
 	
 	var settings = {
 		gridWidth: 4,
@@ -24,8 +19,24 @@ app.controller('puzzleController', function ($scope) {
 	angular.extend(settings, {
 		blockWidth: 100 / settings.gridWidth,
 		blockHeight: 100 / settings.gridHeight,
-		blockCount: settings.gridWidth * settings.gridHeight
+		blockCount: settings.gridWidth * settings.gridHeight,
+
+		// Score variables
+		gameOver: false,
+		gameStatus: "Current Score",
+		keepScore: 0,
+		highestBlock: 0,
+		blocksPlaced: 0,
+
+		// Shift settings for comparing blocks
+		shift: {
+			left : -1,
+			right : 1,
+			up : -settings.gridWidth,
+			down : settings.gridWidth
+		}
 	});
+
 
 	// make settings public to the scope
 	angular.extend($scope, settings);
@@ -44,17 +55,13 @@ app.controller('puzzleController', function ($scope) {
 		if(i > 0 && i%settings.gridWidth == 0) row++;
 		col = i%settings.gridWidth;
 
-		var block = {
-			// create random value
-			// val: (i == 0 || i == 8 || i == 12) ? randPow(2) : 0,
-			val: 0, //randPow(2),
+		// push block element to the blocks array
+		$scope.blocks.push({
+			val: 0,
 			row: row,
 			col: col,
 			index: i
-		};
-
-		// push block element to the blocks array
-		$scope.blocks.push(block);
+		});
 	}
 
 	//ON INITIATION, GENERATE 3 BLOCKS
@@ -70,44 +77,107 @@ app.controller('puzzleController', function ($scope) {
 
 	$scope.move = function(dir){
 		$scope.operand = dir;
-		console.log("dir", dir);
-		var jump = {
-			left : -1,
-			right : 1,
-			up : -settings.gridWidth,
-			down : settings.gridWidth
-		}
+		
+		//console.log("direction", dir);
+		var change;
 
 		switch(dir){
 			case "left" : 
 				for(var i = 1; i < settings.blockCount; i++){
 
 					// Skip most left column
-					if(i%settings.gridWidth) operateBlock(dir, i, jump[dir]);
+					if(i%settings.gridWidth){
+						setChange(operateBlock(dir, i, settings.shift[dir]));
+					}
 				}
 				break;
 			case "up" :
 				for(var i = settings.gridWidth; i < settings.blockCount; i++){
-					operateBlock(dir, i, jump[dir]);
+					setChange(operateBlock(dir, i, settings.shift[dir]));
 				}
 				break;
 			case "right" : 
 				for(var i = settings.blockCount - 1; i >= 0; i--){
 
 					// Skip most right column
-					if((i+1)%settings.gridWidth) operateBlock(dir, i, jump[dir]);
+					if((i+1)%settings.gridWidth){
+						setChange(operateBlock(dir, i, settings.shift[dir]));
+					}
 				}
 				break;
 			case "down" :
 				for(var i = settings.blockCount - settings.gridWidth - 1; i >= 0; i--){
-					operateBlock(dir, i, jump[dir]);
+					setChange(operateBlock(dir, i, settings.shift[dir]));
 				}
 				break;
 		}
 
-		resetBlocks();
-		generateBlocks(1);
-		updateScore();
+		function setChange(changeStatus){
+			if(!change && changeStatus) change = changeStatus;
+		}
+
+		if(change) generateBlocks(1);
+
+		// Check for gameover when there's no change and board is full
+		else if($scope.blocksPlaced == settings.blockCount){
+
+			// You dead? DIE THEN!
+			if(checkGameOver()) gameOver();
+		}
+
+		// Reset done status on blocks for next move
+		resetBlockStatus();
+	}
+
+
+	// Reset the whole thing for another go!
+	$scope.reset = function(){
+
+		// TODO: Make a initial settings object and copy it to the scope.
+		// 		 Only manipulate the scope, so when you want to reset you 
+		//		 only have to overwrite the scope with the original settings
+		//		 again.
+	};
+
+	// Are you dead?
+	function checkGameOver(){
+
+		console.log("checking Game Over...");
+
+		// Loop through all the blocks!
+		for(var i = 0; i < settings.blockCount; i++){
+
+			// Loop through the directions
+			for(var dir in settings.shift){
+
+				var block = $scope.blocks[i],
+					shift = settings.shift[dir];
+
+				// check if the comparison is not out of bounds
+				if(!outOfBounds(dir, block)){
+
+					var compareBlock = $scope.blocks[i + shift];
+
+					var	status = compare(block, compareBlock);
+
+					// As soon as there's a move possible, cancel loop and return gameover: false
+					if(status != "stuck"){
+
+						console.log("Keep on playing!");
+						return false;
+					}
+				}
+			};
+		};
+
+		console.log("No moves possible...");
+		return true;
+	}
+
+	// You're dead mofo!
+	function gameOver(){
+		$scope.gameOver = true;
+		$scope.gameStatus = "GAME OVER!";
 	}
 
 	// Random generation of block
@@ -115,22 +185,21 @@ app.controller('puzzleController', function ($scope) {
 		var placed = 0,
 			currentBlock;
 
+		$scope.blocksPlaced += amount;
+		
 		do{
+			// pick random block
 			currentBlock = $scope.blocks[rand(settings.blockCount - 1)];
 			
+			// is block empty?
 			if(currentBlock.val == 0){
 				currentBlock.val = randPow(2);
 				placed++;
 			}
 		} while(placed < amount);
-
-		if (placed == settings.blockCount) {
-			$scope.gameOver = true;
-			$scope.gameStatus = "Game Over! Final Score"; 
-		}
 	}
 
-	function resetBlocks(){
+	function resetBlockStatus(){
 
 		// once all operations have been performed, reset block done status
 		angular.forEach($scope.blocks, function(block, index){
@@ -138,24 +207,26 @@ app.controller('puzzleController', function ($scope) {
 		});
 	}
 
-	function updateScore(){
+	function updateScore(val){
+
 		//updates the highest score
-		if (compareBlock.val > keepScore) {
-			keepScore = compareBlock.val;
-		}
+		$scope.keepScore += val;
+		if(val > $scope.highestBlock) $scope.highestBlock = val;
 	}
 
-	function operateBlock(dir, currentIndex, jump){
+	function operateBlock(dir, currentIndex, shift){
+
+		var change = false;
 
 		// Only perform check if value > 0
 		if($scope.blocks[currentIndex].val > 0){
 
 			do{
 				var currentBlock = $scope.blocks[currentIndex],
-					compareBlock = $scope.blocks[currentIndex + jump],
+					compareBlock = $scope.blocks[currentIndex + shift],
 					status = compare(currentBlock, compareBlock);
 
-					console.log(currentIndex + " -> " + (currentIndex + jump), ":", currentBlock.val, compareBlock.val, status);
+					//console.log(currentIndex + " -> " + (currentIndex + shift), ":", currentBlock.val, compareBlock.val, status);
 
 					// perform operation when status is returned
 					switch(status){
@@ -165,33 +236,55 @@ app.controller('puzzleController', function ($scope) {
 							if(compareBlock.done) return;
 							compareBlock.done = true;
 							compareBlock.val *= 2;
-							currentBlock.val = 0
+							currentBlock.val = 0;
+							
+							// Reduce blocks placed by 1
+							$scope.blocksPlaced--;
+
+							// Update the score with the multiplied value
+							updateScore(compareBlock.val);
+
+							// Update change status
+							change = true;
 
 							break;
 
 						case "shift" :
 							compareBlock.val = currentBlock.val;
 							currentBlock.val = 0;
+
+							// Update change status
+							change = true;
+
 							break;
 					}
 
 
 					// if border has been reached, set status to stuck
-					if(
-						(dir == "left" && compareBlock.col-1 < 0) ||
-						(dir == "right" && compareBlock.col+1 >= settings.gridWidth) ||
-						(dir == "up" && compareBlock.row-1 < 0) ||
-						(dir == "down" && compareBlock.row+1 >= settings.gridHeight)){
-
-						console.log("out of bounds, stop");
+					if(outOfBounds(dir, compareBlock)){
+						//console.log("out of bounds, stop");
 						status = "stuck";
 					}
 
 					// update the pointer to the recently compared block
-					currentIndex+=jump;
+					currentIndex+=shift;
 
 			} while(status == "shift"); // Keep on comparing blocks as long as it can shift
 		}
+
+		return change;
+	}
+
+	function outOfBounds(dir, compareBlock){
+		if(	(dir == "left" && compareBlock.col-1 < 0) ||
+			(dir == "right" && compareBlock.col+1 >= settings.gridWidth) ||
+			(dir == "up" && compareBlock.row-1 < 0) ||
+			(dir == "down" && compareBlock.row+1 >= settings.gridHeight)){
+
+			return true;
+		}
+
+		return false;
 	}
 
 	// 

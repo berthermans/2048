@@ -8,7 +8,7 @@
 <body>
 
 <div ng-controller="puzzleController">
-  <div id="container">
+  <div id="container" ng-class="{gameover : gameOver}">
     <div class="block val val-{{block.val}}"
           ng-repeat="block in blocks"
           style="width: {{blockWidth}}%;
@@ -19,16 +19,13 @@
     </div>
   </div>
 
-  <button ng-click="move('left')" ng-disabled="{{gameOver}}">Left</button>
+<!--   <button ng-click="move('left')" ng-disabled="{{gameOver}}">Left</button>
   <button ng-click="move('up')" ng-disabled="{{gameOver}}">Up</button>
   <button ng-click="move('right')" ng-disabled="{{gameOver}}">Right</button>
-  <button ng-click="move('down')" ng-disabled="{{gameOver}}">Down</button>
+  <button ng-click="move('down')" ng-disabled="{{gameOver}}">Down</button> -->
 
   <h4>{{gameStatus}}: {{keepScore}}</h4>
-
-  <br/>
-
-  {{operand}}
+  <h3>Highest block: {{highestBlock}}</h4>
 </div>
 
 <!-- Depencencies -->

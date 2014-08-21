@@ -32,6 +32,10 @@ body *{
 	font-size: 0;
 }
 
+#container.gameover{
+	opacity: .5;
+}
+
 .block {
 	display: inline-block;
 	border:solid 1px #eee;
