@@ -2,37 +2,47 @@
 <html lang="en" ng-app="puzzle">
 <head>
   <meta charset="utf-8">
+  <meta name=viewport
+  content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="styles/app.css">
   <title>2048 puzzle</title>
-  <link rel="stylesheet" type="text/css" href="styles/app.css" />
 </head>
 <body>
 
-<div ng-controller="puzzleController">
-  <div id="container" ng-class="{gameover : gameOver}">
-    <div class="block val val-{{block.val}}"
-          ng-repeat="block in blocks"
-          style="width: {{blockWidth}}%;
-                 height: {{blockHeight}}%">
+  <div ng-controller="puzzleController"
+       ng-swipe-left="move('left')"
+       ng-swipe-right="move('right')"
+       ng-swipe-up="move('up')"
+       ng-swipe-down="move('down')">
 
-      <!-- <div class="block-index">{{block.index}}</div> -->
-      <div class="block-val">{{block.val}}</div>
+    <h4>{{gameStatus}}: {{keepScore}}</h4>
+    <h4>Highest block: {{highestBlock}}</h4>
+
+    <div id="container">
+      <div id="grid" ng-class="{gameover : gameOver}">
+        <div class="block"
+              ng-repeat="block in blocks"
+              style="width: {{blockWidth}}%;
+                     height: {{blockHeight}}%">
+
+          <div class="block-val val-{{block.val}}" ng-class="{animate : block.done}">
+            <span class="val-number">{{block.val}}</span>
+          </div>
+
+        </div>
+      </div>
     </div>
   </div>
 
-<!--   <button ng-click="move('left')" ng-disabled="{{gameOver}}">Left</button>
-  <button ng-click="move('up')" ng-disabled="{{gameOver}}">Up</button>
-  <button ng-click="move('right')" ng-disabled="{{gameOver}}">Right</button>
-  <button ng-click="move('down')" ng-disabled="{{gameOver}}">Down</button> -->
+  <!-- Depencencies -->
+  <script type="text/javascript" src="scripts/vendor/jquery.min.js"></script>
+  <script type="text/javascript" src="scripts/vendor/angular.min.js"></script>
 
-  <h4>{{gameStatus}}: {{keepScore}}</h4>
-  <h3>Highest block: {{highestBlock}}</h4>
-</div>
+  <!-- Modules -->
+  <script type="text/javascript" src="scripts/vendor/angular.swipe.js"></script>
 
-<!-- Depencencies -->
-<script type="text/javascript" src="scripts/vendor/jquery.min.js"></script>
-<script type="text/javascript" src="scripts/vendor/angular.min.js"></script>
+  <!-- Main app -->
+  <script type="text/javascript" src="scripts/controllers.js"></script>
 
-<!-- Main app -->
-<script type="text/javascript" src="scripts/controllers.js"></script>
 </body>
 </html>

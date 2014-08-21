@@ -1,4 +1,4 @@
-var app = angular.module('puzzle', []);
+var app = angular.module('puzzle', ['swipe']);
 
 
 //HEIDI TODO
@@ -6,7 +6,7 @@ var app = angular.module('puzzle', []);
 //2 - KEEPING SCORE
 //3 - GAME OVER
 
-app.controller('puzzleController', function ($scope) {
+app.controller('puzzleController', function ($scope, $timeout) {
 
 	//HIGH SCORE
 	//GAME OVER
@@ -15,6 +15,9 @@ app.controller('puzzleController', function ($scope) {
 		gridWidth: 4,
 		gridHeight: 4
 	};
+
+	// Used for delay in resetting blocks
+	var timer;
 
 	angular.extend(settings, {
 		blockWidth: 100 / settings.gridWidth,
@@ -87,13 +90,13 @@ app.controller('puzzleController', function ($scope) {
 
 					// Skip most left column
 					if(i%settings.gridWidth){
-						setChange(operateBlock(dir, i, settings.shift[dir]));
+						setChange(changeBlock(dir, i, settings.shift[dir]));
 					}
 				}
 				break;
 			case "up" :
 				for(var i = settings.gridWidth; i < settings.blockCount; i++){
-					setChange(operateBlock(dir, i, settings.shift[dir]));
+					setChange(changeBlock(dir, i, settings.shift[dir]));
 				}
 				break;
 			case "right" : 
@@ -101,13 +104,13 @@ app.controller('puzzleController', function ($scope) {
 
 					// Skip most right column
 					if((i+1)%settings.gridWidth){
-						setChange(operateBlock(dir, i, settings.shift[dir]));
+						setChange(changeBlock(dir, i, settings.shift[dir]));
 					}
 				}
 				break;
 			case "down" :
 				for(var i = settings.blockCount - settings.gridWidth - 1; i >= 0; i--){
-					setChange(operateBlock(dir, i, settings.shift[dir]));
+					setChange(changeBlock(dir, i, settings.shift[dir]));
 				}
 				break;
 		}
@@ -201,10 +204,14 @@ app.controller('puzzleController', function ($scope) {
 
 	function resetBlockStatus(){
 
+		$timeout.cancel();
+
 		// once all operations have been performed, reset block done status
-		angular.forEach($scope.blocks, function(block, index){
-			block.done = false;
-		});
+		$timeout(function(){
+			angular.forEach($scope.blocks, function(block, index){
+				block.done = false;
+			});
+		}, 400, true);
 	}
 
 	function updateScore(val){
@@ -214,7 +221,7 @@ app.controller('puzzleController', function ($scope) {
 		if(val > $scope.highestBlock) $scope.highestBlock = val;
 	}
 
-	function operateBlock(dir, currentIndex, shift){
+	function changeBlock(dir, currentIndex, shift){
 
 		var change = false;
 
@@ -330,8 +337,8 @@ app.controller('puzzleController', function ($scope) {
 
 		$scope.move(keyMapping[e.keyCode]);
 		$scope.$apply();
-
 	});
+
 });
 
 // Create rounded random number between 0 and limit
