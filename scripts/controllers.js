@@ -10,10 +10,11 @@ app.controller('puzzleController', function ($scope) {
 
 	//HIGH SCORE
 	//GAME OVER
-	var scoreKeeper = 0;
+
 	$scope.gameOver = false;
 	$scope.gameStatus = "Current Score";
-	$scope.keepScore = scoreKeeper;
+	$scope.keepScore = 0;
+
 	
 	var settings = {
 		gridWidth: 4,
@@ -106,13 +107,13 @@ app.controller('puzzleController', function ($scope) {
 
 		resetBlocks();
 		generateBlocks(1);
+		updateScore();
 	}
 
 	// Random generation of block
 	function generateBlocks(amount){
 		var placed = 0,
 			currentBlock;
-
 
 		do{
 			currentBlock = $scope.blocks[rand(settings.blockCount - 1)];
@@ -124,7 +125,6 @@ app.controller('puzzleController', function ($scope) {
 		} while(placed < amount);
 
 		if (placed == settings.blockCount) {
-
 			$scope.gameOver = true;
 			$scope.gameStatus = "Game Over! Final Score"; 
 		}
@@ -136,6 +136,13 @@ app.controller('puzzleController', function ($scope) {
 		angular.forEach($scope.blocks, function(block, index){
 			block.done = false;
 		});
+	}
+
+	function updateScore(){
+		//updates the highest score
+		if (compareBlock.val > keepScore) {
+			keepScore = compareBlock.val;
+		}
 	}
 
 	function operateBlock(dir, currentIndex, jump){
@@ -159,11 +166,6 @@ app.controller('puzzleController', function ($scope) {
 							compareBlock.done = true;
 							compareBlock.val *= 2;
 							currentBlock.val = 0
-
-							//updates the highest score
-							if (compareBlock.val > scoreKeeper) {
-								scoreKeeper = compareBlock.val;
-							}
 
 							break;
 
