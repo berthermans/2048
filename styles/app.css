@@ -34,6 +34,7 @@ body *{
 
 #container.gameover{
 	opacity: .5;
+	background:#c00;
 }
 
 .block {
@@ -42,6 +43,7 @@ body *{
 	text-align: center;
 	position: relative;
 	color:rgba(0,0,0,.4);
+	border-radius: 10px;
 	transition: background ease-out .2s;
 }
 
@@ -58,7 +60,7 @@ body *{
 	display: inline-block;
 	text-align: center;
 	vertical-align: middle;
-	font-size: 42px;
+	font-size: 58px;
 	font-weight: bold;
 	width: 100%;
 	transition: font-size ease-in .2s;
